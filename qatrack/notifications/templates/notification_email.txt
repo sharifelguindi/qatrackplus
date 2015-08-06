@@ -1,0 +1,27 @@
+=== Notifications for {{test_list_instance.test_list.name}} ===
+
+Test List : {{test_list_instance.test_list.name}}
+Unit      : {{test_list_instance.unit_test_collection.unit.name}}
+Date      : {{test_list_instance.work_completed }}
+
+{% if failing_tests %}
+Failing Tests
+=============
+{% for test_instance in failing_tests %}
+    Test  : {{test_instance.unit_test_info.test.name}}
+    Value : {{test_instance.value_display}}
+    Ref.  : {{test_instance.reference}}
+    Tol.  : {{test_instance.tolerance}}
+{% endfor %}
+{% endif %}
+
+{% if tolerance_tests %}
+Tests at Tolerance
+==================
+{% for test_instance in tolerance_tests %}
+    Test  : {{test_instance.unit_test_info.test.name}}
+    Value : {{test_instance.value_display}}
+    Ref.  : {{test_instance.reference}}
+    Tol.  : {{test_instance.tolerance}}
+{% endfor %}
+{% endif %}

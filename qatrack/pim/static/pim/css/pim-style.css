@@ -1,0 +1,38 @@
+
+.errorlist {
+	color: red;
+  font-family: "Varela Round", Arial, Helvetica, sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	list-style-type:none;
+	position: relative;
+  left: 150px;
+}
+
+#pim_review {
+	
+	position: relative;
+	top: 50px;
+}
+
+.title {
+	position: relative;
+	left: 90px
+}
+
+.review_links {
+font-family: "Varela Round", Arial, Helvetica, sans-serif;
+font-size: 16px;
+font-weight: bold;
+position: relative;
+left: 10px;
+top: 30px;
+
+}
+
+#chartposition {
+	position: relative;
+	top:40px;
+}
+
+

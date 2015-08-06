@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans 'QATrack+ Admin Site' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url home %}" title="QATrack+ Home">{% trans 'QATrack+ administration' %}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block content %}{% endblock %}
+
+{% block footer %}
+
+{{ block.super }}
+<script>
+if (window.django){
+    django.jQuery(function(){
+
+      django.jQuery("form").submit(function() {
+
+            if (this.beenSubmitted){
+              return false;
+            }else{
+              django.jQuery(this).find("input[type=submit]").val("Submitting...");
+              this.beenSubmitted = true;
+            }
+          });
+
+    });
+}
+</script>
+{% endblock footer %}

@@ -1,0 +1,14 @@
+{% load qa_tags %}
+{% if instance %}
+    {% if instance.in_progress %}
+        <span data-timestamp="{{instance.work_started|date:"U"}}">
+            <abbr title="Started by {{instance.modified_by}}">{{instance.work_started}}</abbr>
+        </span>
+    {% else %}
+        <span data-timestamp="{{instance.work_completed|date:"U"}}">
+            <abbr title="Completed by {{instance.created_by}}, Last modified by {{instance.modified_by}}">{{instance.work_completed}}</abbr>
+        </span>
+    {% endif %}
+{% else %}
+    <em>New List</em>
+{% endif %}

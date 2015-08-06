@@ -1,0 +1,65 @@
+{% extends "site_base.html" %}
+
+{% load staticfiles %}
+{% load qa_tags %}
+
+{% block head_title %}{{page_title}}{% endblock %}
+
+{% block body %}
+<head>
+<link rel="stylesheet" type="text/css" href="{% static 'pim/css/pim-style.css' %}" />
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.1/css/jquery.dataTables.css">
+  
+<!-- jQuery -->
+<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+  
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.1/js/jquery.dataTables.js"></script>
+</head>
+
+<div class="review_links">
+  <a href="/pracimprov/review/table">Table Review</a>
+  <a href="/pracimprov/review/bar">Bar Graph</a>
+</div>
+
+<div id="pim_review">
+
+<table id="mytable" class="display">
+    <thead>
+    <tr>
+        <th>Patient ID</th>
+        <th>Event Date</th>
+        <th>Submission Date</th>
+        <th>Submitted By</th>
+        <th>Department</th>
+        <th>Comment</th>
+        <th>Supporting Document</th>
+        
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in list %}
+    <tr> 
+        <td>{{ item.patient_ID }}</td>
+        <td>{{ item.incident_date|date:"D d M Y" }}</td>
+        <td>{{ item.report_date }}</td>
+        <td>{{ item.submitter }}</td>
+        <td>{{ item.department }}</td>
+        <td>{{ item.comment }}</td>
+        {% if item.pim_image %}
+            <td> <a href="{{ MEDIA_URL }}{{ item.pim_image }}" >Supporting File</a></td> 
+        {% else %}
+            <td>None</td>
+        {% endif %}
+
+    </tr>
+    {% endfor %}
+     </tbody>
+</table>
+
+<script type="text/javascript" charset="utf8" src="{% static 'pim/js/table.js' %}"></script>
+
+
+{% endblock body %}

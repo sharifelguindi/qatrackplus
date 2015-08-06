@@ -1,0 +1,74 @@
+{% extends "site_base.html" %}
+
+{% load staticfiles %}
+{% load qa_tags %}
+
+{% block head_title %}{{page_title}}{% endblock %}
+
+{% block body %}
+<head>
+<link rel="stylesheet" type="text/css" href="{% static 'pim/css/pim-style.css' %}" />
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.1/css/jquery.dataTables.css">
+  
+<!-- jQuery -->
+<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+  
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.1/js/jquery.dataTables.js"></script>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            
+            ['{{query_name}}', 'link', 'Submissions'],
+            {% for item in query_results %}
+              [ '{{item.department }}','{{ PROJECT_URL}}/pracimprov/review/table/{{item.department}}' ,{{ item.count}}],
+            {% endfor %}
+
+        ]);
+        
+       var view = new google.visualization.DataView(data);
+       view.setColumns([0, 2]);
+      
+      var options = {
+          title: 'Number of Submissions by {{query_name}}',
+          vAxis: { 
+              title: "Number of Submissions", 
+              viewWindowMode:'explicit',
+              viewWindow:{
+                min:0
+                 }}
+          };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+                    chart.draw(view, options);
+        
+        var selectHandler = function(e) {
+          window.location = data.getValue(chart.getSelection()[0]['row'], 1 );
+          }
+
+        google.visualization.events.addListener(chart, 'select', selectHandler);
+
+      
+      }
+
+    </script>
+    
+</head>
+
+<div class="review_links">
+  <a href="/pracimprov/review/table">Table Review</a>
+  <a href="/pracimprov/review/bar">Bar Graph</a>
+</div>
+
+<div id="chartposition">
+<div id="chart_div" style="width: 900px; height: 500px;"></div>
+</div>
+  
+{% endblock body %}

@@ -1,0 +1,201 @@
+{% extends "theme_base.html" %}
+
+{% load i18n %}
+{% load l10n %}
+{% load staticfiles %}
+
+{% block favicon %}
+    <link rel="shortcut icon" href="{% static "qatrack_theme/favicon.ico" %}?v={{VERSION}}">
+    <link rel="apple-touch-icon" href="{% static "qatrack_theme/apple-touch-icon.png" %}?v={{VERSION}}">
+{% endblock favicon %}
+
+{% block extra_style %}
+    <link href="{% static "css/qa.css" %}?v={{VERSION}}" rel="stylesheet">
+    <link href="{% static "data_tables/css/DT_bootstrap.css" %}?v={{VERSION}}" rel="stylesheet">
+    <link href="{% static "css/site.css" %}?v={{VERSION}}" rel="stylesheet">
+    {% block page_style %}{% endblock %}
+{% endblock %}
+
+{% block script_base %}
+    <script type="text/javascript">
+        var QAURLs = {
+            API_URL:"{% url api_v1_top_level 'v1'%}",
+            COMPOSITE_URL:"{% url composite %}",
+            UPLOAD_URL:"{% url upload %}",
+            CHART_DATA_URL:"{% url chart_data%}",
+            CONTROL_CHART_URL:"{% url control_chart %}",
+            MEDIA_URL: "{{MEDIA_URL}}",
+            OPTION_DELIM: "=",
+            OPTION_SEP: "&",
+
+            options_from_url_hash : function(hash){
+                var options = [];
+                if (hash.slice(0,1) === "#"){
+                    hash = hash.slice(1);
+                }
+                var that = this;
+                $.each(hash.split(this.OPTION_SEP),function(i,elem){
+                    var k_v = elem.split(that.OPTION_DELIM);
+                    options.push([k_v[0],k_v[1]]);
+                });
+                return options;
+            },
+
+            unit_test_chart_url : function(unit,test){
+                var unit_option = 'unit'+this.OPTION_DELIM+unit.number;
+                var test_option = 'slug'+this.OPTION_DELIM+test.slug;
+                return this.CHARTS_URL+'#'+[unit_option,test_option].join(this.OPTION_SEP);
+            },
+            unit_test_chart_link : function(unit,test,text,title){
+                var url = this.unit_test_chart_url(unit,test);
+                if (title === undefined){
+                    title = ["View Data for", unit.name, test.name, "data"].join(" ");
+                }
+                return '<a href="'+url+'" title="'+title+'">'+text+'</a>';
+            }
+        }
+
+        var ICON_SETTINGS = {{ICON_SETTINGS_JSON|safe}};
+
+    </script>
+
+    {{block.super}}
+{% endblock script_base %}
+
+{% block nav %}
+    {% if user.is_authenticated %}
+
+        <ul class="nav nav-pills">
+		    <li class="dropdown">
+                <a href="#" class="dropdown-toggle" >
+                    Practice Improvement
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url pimform %}" title="Submit Practice Improvement Form"><i class="icon-list"></i> Submit PIM</a></li>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" >
+                    Perform QA
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url choose_unit %}" title="Choose a Unit To Perform QA On"><i class="icon-list"></i> Choose Unit</a></li>
+                    <li><a href="{% url all_lists %}" title="View all available QA Lists"><i class="icon-list"></i> All QA</a></li>
+                    <li class="divider"></li>
+                    <li>
+                        <a title="Resume a QA session currently in progress" href="{% url in_progress %}">
+                            <i class="icon-play"></i>
+                            In Progress
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            {% if perms.qa.can_review or perms.qa.can_view_completed or perms.qa.can_view_charts or perms.qa.change_testlistinstance or perms.pim.change_practice_improvement%}
+
+			{% if perms.pim.change_practice_improvement %}
+			
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" >
+					Review PIM Forms
+					<b class="caret"></b>
+				</a>
+				<ul class="dropdown-menu">
+					<li><a href="{% url pimreview_table %}" title="Show Forms By Table"><i class="icon-list"></i> Table View</a></li>
+					</li>
+				</ul>
+			</li>
+			{% endif %}
+			
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" >
+                    Review QA Data
+                    {% if perms.qa.can_review %}
+                        <span title="There are currently {{UNREVIEWED}} QA Sessions waiting to be reviewed" class="label {% if UNREVIEWED == 0%}label-success{%else%}label-warning{%endif%} unreviewed-count-wrapper">
+                            <span class="total-unreviewed-count">{{UNREVIEWED}}</span>
+                        </span>
+                    {% endif %}
+                    <b class="caret"></b>
+                </a>
+
+                <ul class="dropdown-menu">
+                    {% if perms.qa.can_review %}
+                    <li class="nav-header">QA Program Status</li>
+                    <li>
+                        <a href="{% url overview %}" title="View a summary of the status of the QA program">
+                            <i class="icon-globe"></i>
+                            Overview
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url overview_due_dates %}" title="View a summary of the status of the QA program">
+                            <i class="icon-globe"></i>
+                            By Due Status
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    {% endif %}
+                    {% if perms.qa.can_review %}
+                    <li class="nav-header">QA Sessions</li>
+
+                        <li>
+                            <a href="{% url  unreviewed %}" title="There are currently {{UNREVIEWED}} QA Sessions waiting to be reviewed">
+                                <i class="icon-question-sign"></i>
+                                Unreviewed
+                                <span title="There are currently {{UNREVIEWED}} QA Sessions waiting to be reviewed" class="label {% if UNREVIEWED == 0%}label-success{%else%}label-warning{%endif%} unreviewed-count-wrapper">
+                                    <span class="total-unreviewed-count">{{UNREVIEWED}}</span>
+                                </span>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                    {% endif %}
+                    <li class="nav-header">Test Lists</li>
+                    <li><a href="{% url review_all %}" title="View all test lists"><i class="icon-list"></i> All Test Lists</a></li>
+                    <li><a href="{% url choose_review_unit %}" title="Choose a unit to review qa lists for."><i class="icon-list"></i> Test Lists By Unit</a></li>
+                    <li><a href="{% url choose_review_frequency %}" title="Choose a frequency to review qa lists for."><i class="icon-list"></i> Test Lists By Frequency</a></li>
+
+                    {% if perms.qa.can_view_charts %}
+                        <li class="divider"></li>
+                        <li class="nav-header">Trends and Analysis</li>
+                        <li><a href="{% url charts %}"><i class="icon-picture"></i> Charts</a></li>
+                    {% endif %}
+                </ul>
+
+            </li>
+            {% endif %}
+            {% if user.is_staff %}
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" >
+                    Tools
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url qa_paper_forms_request%}" title="Create a set of paper backup forms"><i class="icon-file"></i> Paper Backup Forms</a></li>
+                </ul>
+            </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+
+{% endblock %}
+
+{% block footer %}
+    {% include "_footer.html" %}
+{% endblock %}
+
+{% block extra_body %}
+    {% block end_body_script_base %}
+        <script src="{% static "data_tables/js/jquery.dataTables.js" %}?v={{VERSION}}"></script>
+        <script src="{% static "data_tables/js/jquery.dataTables.columnFilter.js" %}?v={{VERSION}}"></script>
+        <script src="{% static "data_tables/js/jquery.dataTables.searchPlugins.js" %}?v={{VERSION}}"></script>
+        <script src="{% static "data_tables/js/DT_bootstrap.js" %}?v={{VERSION}}"></script>
+        <script src="{% static "data_tables/js/DT_sort.js" %}?v={{VERSION}}"></script>
+        <script src="{% static "js/lodash.compat.min.js" %}?v={{VERSION}}"></script>
+        <script src="{% static "js/qautils.js" %}?v={{VERSION}}"></script>
+        <script src="{% static "js/base.js" %}?v={{VERSION}}"></script>
+        {% block end_body_extra_script %}{%endblock%}
+    {% endblock end_body_script_base%}
+{% endblock %}
