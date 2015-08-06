@@ -22,6 +22,7 @@ questions_*
 qatrack/static
 qatrack/cache/cache_data
 qatrack/media/uploads
+qatrack/media/user_upload
 qatrack/qa/static/css/site.css
 ldap.debug
 *.pyproj
